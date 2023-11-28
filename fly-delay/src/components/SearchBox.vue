@@ -8,10 +8,16 @@
     <input type="radio" v-model="searchType" value="flight"> Flight
   </div>
   <div v-if="rows.length > 0">
-    <!-- 展示搜索结果 -->
-    <vue-good-table
-      :columns="columns"
-      :rows="rows"/>
+    <table-lite
+    :is-loading="table.isLoading"
+    :columns="table.columns"
+    :rows="table.rows"
+    :total="table.totalRecordCount"
+    :sortable="table.sortable"
+    :messages="table.messages"
+    @do-search="doSearch"
+    @is-finished="table.isLoading = false"
+  ></table-lite>
   </div>
   <div v-else>
     <p>No Searching Results</p>
@@ -21,12 +27,14 @@
 <script>
 import axios from 'axios';
 import MyTable from './MyTable.vue';
-import { VueGoodTable } from 'vue-good-table-next';
+import { defineComponent, reactive } from "vue";
+import TableLite from "vue3-table-lite";
+
 
 
 export default {
   components: {
-    'vuegoodtable': VueGoodTable
+    TableLite
   },
   data() {
     return {
