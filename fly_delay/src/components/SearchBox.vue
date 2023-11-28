@@ -120,4 +120,31 @@ button.search-button {
 button.search-button:hover {
   color: #3b6d96;
 }
+
+.search-container {
+  text-align: center;
+  margin-bottom: 100px; /* 添加一些空间在搜索框和表格之间 */
+}
+
+table {
+
+  margin: 0 auto; /* 实现表格居中 */
+  max-width: 600px; /* 根据需要调整表格宽度 */
+  border-collapse: collapse; /* 折叠边框以使其更加紧凑 */
+}
+
+.table-container {
+  position: relative; /* 或 absolute, 根据需要 */
+  top: 100px; /* 调整以满足你的需求 */
+}
+
+
+table, th, td {
+  border: 1px solid black; /* 添加边框 */
+}
+
+th, td {
+  padding: 8px; /* 添加一些填充使表格更易读 */
+  text-align: left; /* 文本对齐 */
+}
 </style>
