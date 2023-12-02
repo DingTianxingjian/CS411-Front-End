@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <search-component></search-component>
+    <tableshow></tableshow>
   </div>
 </template>
 
 <script>
-import SearchComponent from './components/SearchBox.vue'
+import tableshow from './components/SearchBox.vue'
 
 export default {
   components: {
-    SearchComponent
+    tableshow
   }
 }
 </script>

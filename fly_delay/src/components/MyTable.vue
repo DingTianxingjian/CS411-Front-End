@@ -92,7 +92,6 @@ th {
   cursor: pointer;
 }
 
-/* 样式，用于突出显示当前排序列和方向 */
 th.active-asc::after {
   content: '▲';
 }

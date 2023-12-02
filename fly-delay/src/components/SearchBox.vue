@@ -36,6 +36,96 @@ export default {
   components: {
     TableLite
   },
+  setup(){
+    // Table config
+    const table = reactive({
+      isLoading: false,
+      columns: [
+        {
+          label: "ID",
+          field: "id",
+          width: "3%",
+          sortable: true,
+          isKey: true,
+        },
+        {
+          label: "City",
+          field: "city",
+          width: "10%",
+          sortable: true,
+        },
+        {
+          label: "IATA_CODE",
+          field: "IATA_CODE",
+          width: "15%",
+          sortable: true,
+        },
+      ],
+      rows: [],
+      totalRecordCount: 0,
+      sortable: {
+        order: "city",
+        sort: "asc",
+      },
+    });
+
+    /**
+     * Search Event
+     */
+    const doSearch = async (offset, limit, order, sort) => {
+      table.isLoading = true;
+      let baseUrl = 'http://localhost:3000'; 
+      let url = `${baseUrl}/delay-history/`;
+      switch(this.searchType) {
+        case 'city':
+          url += `city/${this.searchQuery}`;
+          break;
+        case 'airport':
+          url += `airport/${this.searchQuery}`;
+          break;
+        case 'flight':
+          // 假设searchQuery是 '航空公司代码-航班号'
+          const [airline_IATA, number] = this.searchQuery.split('-');
+          url += `flight/${airline_IATA}/${number}`;
+          break;
+      }
+
+      try {
+        console.log("URL requested:", url);
+        const response = await axios.get(url);
+        
+        console.log("Response received:", response);
+        this.rows = response.data;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // 处理错误情况
+        this.rows = [];
+      }
+      setTimeout(() => {
+        table.isReSearch = offset == undefined ? true : false;
+        if (offset >= 10 || limit >= 20) {
+          limit = 20;
+        }
+        if (sort == "asc") {
+          table.rows = sampleData1(offset, limit);
+          console.log(table.rows);
+        } else {
+          table.rows = sampleData2(offset, limit);
+        }
+        table.totalRecordCount = 20;
+        table.sortable.order = order;
+        table.sortable.sort = sort;
+      }, 300);
+    };
+
+    // First get data
+    doSearch(0, 10, "id", "asc");
+
+    return {
+      table,
+      doSearch,
+    };
+  },
   data() {
     return {
       columns: [

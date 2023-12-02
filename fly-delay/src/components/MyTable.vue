@@ -65,8 +65,8 @@ export default defineComponent({
           sortable: true,
         },
         {
-          label: "Email",
-          field: "email",
+          label: "IATA_CODE",
+          field: "IATA_CODE",
           width: "15%",
           sortable: true,
         },
@@ -91,6 +91,7 @@ export default defineComponent({
         }
         if (sort == "asc") {
           table.rows = sampleData1(offset, limit);
+          console.log(table.rows);
         } else {
           table.rows = sampleData2(offset, limit);
         }
