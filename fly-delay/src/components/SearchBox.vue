@@ -1,23 +1,25 @@
 <template>
   <div class="search-container">
     <input v-model="searchQuery" type="text" placeholder="Waiting For Input...">
-    <button @click="search">🔍</button>
+    <button @click="doSearch">🔍</button>
     <br>
     <input type="radio" v-model="searchType" value="city" checked> City
     <input type="radio" v-model="searchType" value="airport"> Airport
     <input type="radio" v-model="searchType" value="flight"> Flight
   </div>
-  <div v-if="rows.length > 0">
+  <div v-if="table.rows.length > 0">
+    <div class="table-container">
     <table-lite
-    :is-loading="table.isLoading"
-    :columns="table.columns"
-    :rows="table.rows"
-    :total="table.totalRecordCount"
-    :sortable="table.sortable"
-    :messages="table.messages"
-    @do-search="doSearch"
-    @is-finished="table.isLoading = false"
-  ></table-lite>
+      :is-loading="table.isLoading"
+      :columns="table.columns"
+      :rows="table.rows"
+      :total="table.totalRecordCount"
+      :sortable="table.sortable"
+      :messages="table.messages"
+      @do-search="doSearch"
+      @is-finished="table.isLoading = false"
+    ></table-lite>
+  </div>
   </div>
   <div v-else>
     <p>No Searching Results</p>
@@ -26,22 +28,19 @@
 
 <script>
 import axios from 'axios';
-import MyTable from './MyTable.vue';
-import { defineComponent, reactive } from "vue";
 import TableLite from "vue3-table-lite";
+import { defineComponent, reactive, ref } from 'vue';
 
-
-
-export default {
+export default defineComponent({
   components: {
-    TableLite
+    TableLite,
   },
-  setup(){
+  setup() {
     // Table config
     const table = reactive({
       isLoading: false,
       columns: [
-        {
+      {
           label: "ID",
           field: "id",
           width: "3%",
@@ -69,123 +68,67 @@ export default {
       },
     });
 
+    // Search configuration
+    const searchQuery = ref('');
+    const searchType = ref('city');
+
     /**
-     * Search Event
+     * Combined Search and Table update Event
      */
     const doSearch = async (offset, limit, order, sort) => {
       table.isLoading = true;
-      let baseUrl = 'http://localhost:3000'; 
+      let baseUrl = 'http://localhost:3000';
       let url = `${baseUrl}/delay-history/`;
-      switch(this.searchType) {
+
+      switch(searchType.value) {
         case 'city':
-          url += `city/${this.searchQuery}`;
+          url += `city/${searchQuery.value}`;
           break;
         case 'airport':
-          url += `airport/${this.searchQuery}`;
+          url += `airport/${searchQuery.value}`;
           break;
         case 'flight':
-          // 假设searchQuery是 '航空公司代码-航班号'
-          const [airline_IATA, number] = this.searchQuery.split('-');
+          const [airline_IATA, number] = searchQuery.value.split('-');
           url += `flight/${airline_IATA}/${number}`;
           break;
       }
+      
 
       try {
-        console.log("URL requested:", url);
+        console.log(url);
         const response = await axios.get(url);
-        
-        console.log("Response received:", response);
-        this.rows = response.data;
+        table.rows = response.data;
       } catch (error) {
         console.error('Error fetching data:', error);
-        // 处理错误情况
-        this.rows = [];
+        table.rows = [];
+      } finally {
+        table.isLoading = false;
       }
+
+      // Update table sorting and pagination if needed
       setTimeout(() => {
-        table.isReSearch = offset == undefined ? true : false;
-        if (offset >= 10 || limit >= 20) {
-          limit = 20;
-        }
         if (sort == "asc") {
-          table.rows = sampleData1(offset, limit);
-          console.log(table.rows);
+          // Logic for ascending sort
         } else {
-          table.rows = sampleData2(offset, limit);
+          // Logic for descending sort
         }
-        table.totalRecordCount = 20;
+        table.totalRecordCount = 20; // Update according to actual data
         table.sortable.order = order;
         table.sortable.sort = sort;
       }, 300);
     };
 
-    // First get data
-    doSearch(0, 10, "id", "asc");
+    // Initial Data Load
+    doSearch(0, 10, table.sortable.order, table.sortable.sort);
 
     return {
       table,
       doSearch,
+      searchQuery,
+      searchType,
     };
   },
-  data() {
-    return {
-      columns: [
-        {
-          label: 'City',
-          field: 'city',
-        },
-        {
-          label: 'IATA_CODE',
-          field: 'IATA_CODE',
-          type: 'number',
-        },
-        // {
-        //   label: 'Created On',
-        //   field: 'createdAt',
-        //   type: 'date',
-        //   dateInputFormat: 'yyyy-MM-dd',
-        //   dateOutputFormat: 'MMM do yy',
-        // },
-        // {
-        //   label: 'Percent',
-        //   field: 'score',
-        //   type: 'percentage',
-        // },
-      ],
-      rows: [],
-    };
-  },
-  methods: {
-    async search() {
-    let baseUrl = 'http://localhost:3000'; 
-    let url = `${baseUrl}/delay-history/`;
-    switch(this.searchType) {
-      case 'city':
-        url += `city/${this.searchQuery}`;
-        break;
-      case 'airport':
-        url += `airport/${this.searchQuery}`;
-        break;
-      case 'flight':
-        // 假设searchQuery是 '航空公司代码-航班号'
-        const [airline_IATA, number] = this.searchQuery.split('-');
-        url += `flight/${airline_IATA}/${number}`;
-        break;
-    }
-
-      try {
-        console.log("URL requested:", url);
-        const response = await axios.get(url);
-        
-        console.log("Response received:", response);
-        this.rows = response.data;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // 处理错误情况
-        this.rows = [];
-      }
-    }
-  }
-}
+});
 </script>
 
 <style>
@@ -240,5 +183,11 @@ button.search-button {
 
 button.search-button:hover {
   color: #3b6d96;
+}
+
+.table-container {
+  width: 80%; /* 调整为所需的宽度 */
+  margin: 300px auto 0; /* 顶部 100px，左右自动居中 */
+  overflow-x: auto; /* 如果表格宽度超出容器宽度，允许滚动 */
 }
 </style>
