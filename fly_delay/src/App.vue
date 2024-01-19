@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import SearchComponent from './components/SearchBox.vue'
+import SearchComponent from './components/MyTable.vue'
 
 export default {
   components: {

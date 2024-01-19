@@ -14,6 +14,7 @@
 <script>
 import { defineComponent, reactive } from "vue";
 import TableLite from "vue3-table-lite";
+// import VueTableLite from 'vue3-table-lite'
 
 // Fake Data for 'asc' sortable
 const sampleData1 = (offst, limit) => {
@@ -58,14 +59,14 @@ export default defineComponent({
           isKey: true,
         },
         {
-          label: "Name",
-          field: "name",
+          label: "City",
+          field: "city",
           width: "10%",
           sortable: true,
         },
         {
-          label: "Email",
-          field: "email",
+          label: "IATA_CODE",
+          field: "IATA_CODE",
           width: "15%",
           sortable: true,
         },
@@ -73,7 +74,7 @@ export default defineComponent({
       rows: [],
       totalRecordCount: 0,
       sortable: {
-        order: "id",
+        order: "city",
         sort: "asc",
       },
     });
@@ -84,15 +85,16 @@ export default defineComponent({
     const doSearch = (offset, limit, order, sort) => {
       table.isLoading = true;
       setTimeout(() => {
-
-        
+        table.isReSearch = offset == undefined ? true : false;
+        if (offset >= 10 || limit >= 20) {
+          limit = 20;
+        }
         if (sort == "asc") {
           table.rows = sampleData1(offset, limit);
+          console.log(table.rows);
         } else {
           table.rows = sampleData2(offset, limit);
         }
-        console.log("offset:",offset);
-        console.log("limit:", limit);
         table.totalRecordCount = 20;
         table.sortable.order = order;
         table.sortable.sort = sort;
@@ -100,7 +102,7 @@ export default defineComponent({
     };
 
     // First get data
-    doSearch(0, 10, 'id', 'asc');
+    doSearch(0, 10, "id", "asc");
 
     return {
       table,
